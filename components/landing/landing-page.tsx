@@ -36,5 +36,5 @@ export function LandingPage() {
         <SiteFooter />
       </div>
     </div>
-  )
+  );
 }

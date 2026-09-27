@@ -141,6 +141,15 @@
   .animate-rise-delayed {
     animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
   }
+
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
 }
 
 @keyframes rise {

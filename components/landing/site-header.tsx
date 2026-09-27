@@ -5,7 +5,7 @@ import { useState } from "react"
 import { List, X } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/brand/logo"
-import { LanguageToggle } from "@/components/brand/language-toggle"
+import { LanguageToggle } from "@/components/brand/language-toggle";
 import { navLinks } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
