@@ -3,6 +3,7 @@ import { Inria_Serif } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/lib/site"
+import { ThemeProvider } from "next-themes"
 
 const inriaSerif = Inria_Serif({
   subsets: ["latin"],
@@ -20,8 +21,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={cn("h-full", "antialiased", inriaSerif.variable)}>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+    <html
+      suppressHydrationWarning
+      lang="en"
+      className={cn("h-full", "antialiased", inriaSerif.variable)}
+    >
+      <body className="min-h-full flex flex-col font-sans">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
-  )
+  );
 }
