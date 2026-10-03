@@ -18,10 +18,9 @@ export function SignupPage() {
       />
 
       <div className="relative z-10 mx-auto grid min-h-svh max-w-6xl items-center gap-12 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-16">
-        <div className="animate-rise flex h-full flex-col justify-between gap-12 lg:min-h-[34rem] lg:py-4">
+        <div className="animate-rise flex h-full flex-col justify-between gap-12 lg:min-h-[34rem] lg:py-4 ">
           <Logo />
-
-          <div className="max-w-lg">
+          <div className="max-w-lg hidden lg:block">
             <h1 className="font-heading text-4xl leading-[1.1] font-semibold tracking-tight text-slate-950 sm:text-5xl">
               Stop typing.
               <br />
@@ -47,7 +46,7 @@ export function SignupPage() {
 
           <Link
             href="/"
-            className="inline-flex w-fit items-center gap-1 text-sm font-medium text-brand transition-colors hover:text-brand-dark"
+            className="hidden w-fit items-center gap-1 text-sm font-medium text-brand transition-colors hover:text-brand-dark lg:inline-flex"
           >
             ← Back to Homepage
           </Link>
@@ -58,5 +57,5 @@ export function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

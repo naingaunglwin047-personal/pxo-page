@@ -107,17 +107,20 @@ export function PricingSection() {
                   </ul>
                 </CardContent>
                 <CardFooter className="border-0 pb-7">
-                  <Link href="/signup">
+                  <Link
+                    href={plan.id === "pro" ? "/payment/pro" : "/signup"}
+                    className="w-full"
+                  >
                     <Button
                       className={cn(
                         "h-11 w-full rounded-full text-sm",
                         plan.popular
                           ? "bg-brand text-white hover:bg-brand-dark"
-                        : "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
-                    )}
-                    variant={plan.popular ? "default" : "outline"}
-                  >
-                    {plan.cta}
+                          : "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+                      )}
+                      variant={plan.popular ? "default" : "outline"}
+                    >
+                      {plan.cta}
                     </Button>
                   </Link>
                 </CardFooter>
