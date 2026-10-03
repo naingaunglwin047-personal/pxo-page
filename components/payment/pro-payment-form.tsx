@@ -1,57 +1,62 @@
+"use client";
 
-"use client"
+import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { ArrowLeft, Check, Info, UploadSimple, X } from "@phosphor-icons/react";
 
-import { useMemo, useRef, useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import {
-  ArrowLeft,
-  Check,
-  Info,
-  UploadSimple,
-  X,
-} from "@phosphor-icons/react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  paymentMethods,
-  proPlanDetails,
-  type PaymentMethodId,
-} from "@/lib/payment"
-import { cn } from "@/lib/utils"
-import { PaymentDialog } from "../payment-dialog/payment-dialog"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { paymentMethods, type PaymentMethodId } from "@/lib/payment";
+import { cn } from "@/lib/utils";
+import { PaymentDialog } from "../payment-dialog/payment-dialog";
+
+export interface PlanDetails {
+  name: string;
+  description: string;
+  monthlyPrice: number;
+  badge: string;
+  features: readonly string[];
+}
+
+export interface ProPaymentFormProps {
+  plan: PlanDetails;
+}
+
+export interface PlanSummaryCardProps {
+  plan: PlanDetails;
+}
 
 export type PaymentConfirmPayload = {
-  fullName: string
-  email: string
-  phone: string
-  transactionId: string
-  notes: string
-  paymentMethod: PaymentMethodId
-  screenshotName: string
-  plan: "pro"
-  amount: number
-  submittedAt: string
-}
+  fullName: string;
+  email: string;
+  phone: string;
+  transactionId: string;
+  notes: string;
+  paymentMethod: PaymentMethodId;
+  screenshotName: string;
+  plan: string;
+  amount: number;
+  submittedAt: string;
+};
 
 type PaymentFormValues = {
-  fullName: string
-  email: string
-  phone: string
-  transactionId: string
-  notes: string
-  screenshot: FileList
-}
+  fullName: string;
+  email: string;
+  phone: string;
+  transactionId: string;
+  notes: string;
+  screenshot: FileList;
+};
 
 function QrPreview({
   methodId,
@@ -59,23 +64,23 @@ function QrPreview({
   accountName,
   accountNumber,
   accent,
+  planName,
 }: {
-  methodId: string
-  name: string
-  accountName: string
-  accountNumber: string
-  accent: string
+  methodId: string;
+  name: string;
+  accountName: string;
+  accountNumber: string;
+  accent: string;
+  planName: string;
 }) {
   const cells = useMemo(
     () =>
       Array.from({ length: 121 }, (_, index) => {
-        const seed =
-          methodId.charCodeAt(index % methodId.length) + index * 17
-
-        return seed % 3 !== 0
+        const seed = methodId.charCodeAt(index % methodId.length) + index * 17;
+        return seed % 3 !== 0;
       }),
-    [methodId]
-  )
+    [methodId],
+  );
 
   return (
     <div
@@ -83,13 +88,8 @@ function QrPreview({
       style={{ backgroundColor: accent }}
     >
       <div className="px-4 pt-4 text-center">
-        <p className="text-sm font-semibold tracking-wide">
-          Scan with {name}
-        </p>
-
-        <p className="mt-1 text-xs text-white/80">
-          Scan to pay · PXO AI Pro
-        </p>
+        <p className="text-sm font-semibold tracking-wide">Scan with {name}</p>
+        <p className="mt-1 text-xs text-white/80">Scan to pay · {planName}</p>
       </div>
 
       <div className="mx-4 my-4 rounded-xl bg-white p-3">
@@ -99,7 +99,7 @@ function QrPreview({
               key={index}
               className={cn(
                 "rounded-[1px]",
-                filled ? "bg-slate-900" : "bg-white"
+                filled ? "bg-slate-900" : "bg-white",
               )}
             />
           ))}
@@ -108,43 +108,31 @@ function QrPreview({
 
       <div className="border-t border-white/20 px-4 py-3 text-center">
         <p className="text-sm font-semibold">{accountName}</p>
-
-        <p className="mt-0.5 text-xs text-white/85">
-          {accountNumber}
-        </p>
-
+        <p className="mt-0.5 text-xs text-white/85">{accountNumber}</p>
         <p className="mt-2 text-[11px] font-medium tracking-[0.16em] uppercase text-white/90">
           {name}
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export function ProPaymentForm() {
+export function ProPaymentForm({ plan }: ProPaymentFormProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmedPayload, setConfirmedPayload] =
     useState<PaymentConfirmPayload | null>(null);
 
-  const [method, setMethod] =
-    useState<PaymentMethodId>("kbzpay")
+  const [method, setMethod] = useState<PaymentMethodId>("kbzpay");
+  const [screenshotName, setScreenshotName] = useState<string | null>(null);
 
-  const [screenshotName, setScreenshotName] =
-    useState<string | null>(null)
-
-  const screenshotRef = useRef<HTMLInputElement>(null)
-
-  const selected = paymentMethods.find(
-    (item) => item.id === method
-  )!
+  const screenshotRef = useRef<HTMLInputElement | null>(null);
+  const selectedMethod = paymentMethods.find((item) => item.id === method)!;
 
   const {
     register,
     handleSubmit,
-    formState: {
-      errors,
-      isValid,
-    },
+    setValue,
+    formState: { errors, isValid },
   } = useForm<PaymentFormValues>({
     mode: "onChange",
     defaultValues: {
@@ -154,50 +142,45 @@ export function ProPaymentForm() {
       transactionId: "",
       notes: "",
     },
-  })
+  });
 
   const screenshotField = register("screenshot", {
     required: "Payment screenshot is required",
     validate: {
       fileType: (files) => {
-        const file = files?.[0]
+        const file = files?.[0];
+        if (!file) return "Payment screenshot is required";
 
-        if (!file) {
-          return "Payment screenshot is required"
-        }
-
-        const allowedTypes = [
-          "image/png",
-          "image/jpeg",
-          "image/webp",
-        ]
-
+        const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
         if (!allowedTypes.includes(file.type)) {
-          return "Only PNG, JPG, or WEBP images are allowed"
+          return "Only PNG, JPG, or WEBP images are allowed";
         }
 
         if (file.size > 5 * 1024 * 1024) {
-          return "Screenshot must be 5MB or smaller"
+          return "Screenshot must be 5MB or smaller";
         }
 
-        return true
+        return true;
       },
     },
-  })
+  });
 
-  const canSubmit = isValid && Boolean(screenshotName)
+  const canSubmit = isValid && Boolean(screenshotName);
 
   function clearScreenshot() {
-    setScreenshotName(null)
-
+    setScreenshotName(null);
     if (screenshotRef.current) {
-      screenshotRef.current.value = ""
+      screenshotRef.current.value = "";
     }
+    // Clear value in react-hook-form state & trigger validation recalculation
+    setValue("screenshot", new DataTransfer().files, {
+      shouldValidate: true,
+      shouldTouch: true,
+    });
   }
 
   function onSubmit(data: PaymentFormValues) {
     const screenshot = data.screenshot?.[0];
-
     if (!screenshot) return;
 
     const payload: PaymentConfirmPayload = {
@@ -208,21 +191,19 @@ export function ProPaymentForm() {
       notes: data.notes.trim(),
       paymentMethod: method,
       screenshotName: screenshot.name,
-      plan: "pro",
-      amount: proPlanDetails.monthlyPrice,
+      plan: plan.name,
+      amount: plan.monthlyPrice,
       submittedAt: new Date().toISOString(),
     };
 
-    // 1. Save data locally or send to backend API
     sessionStorage.setItem("payment_confirm", JSON.stringify(payload));
-
-    // 2. Pass payload and open dialog
     setConfirmedPayload(payload);
     setDialogOpen(true);
   }
 
   return (
     <div className="space-y-6">
+      {/* Payment Method Selector Card */}
       <Card className="rounded-2xl bg-white/95 py-0 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)] ring-slate-200/80">
         <CardHeader className="gap-1 pt-6">
           <CardTitle className="font-heading text-xl font-semibold text-slate-950">
@@ -238,11 +219,12 @@ export function ProPaymentForm() {
         <CardContent className="pb-6">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,220px)_1fr]">
             <QrPreview
-              methodId={selected.id}
-              name={selected.name}
-              accountName={selected.accountName}
-              accountNumber={selected.accountNumber}
-              accent={selected.accent}
+              methodId={selectedMethod.id}
+              name={selectedMethod.name}
+              accountName={selectedMethod.accountName}
+              accountNumber={selectedMethod.accountNumber}
+              accent={selectedMethod.accent}
+              planName={plan.name}
             />
 
             <div className="space-y-3">
@@ -288,9 +270,9 @@ export function ProPaymentForm() {
               </div>
 
               <p className="text-xs text-slate-500">
-                {selected.name} is selected. Transfer exactly{" "}
+                {selectedMethod.name} is selected. Transfer exactly{" "}
                 <span className="font-semibold text-slate-700">
-                  ${proPlanDetails.monthlyPrice}
+                  ${plan.monthlyPrice}
                 </span>{" "}
                 for this plan.
               </p>
@@ -299,7 +281,6 @@ export function ProPaymentForm() {
 
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-brand/5 px-3.5 py-3 text-sm text-slate-700 ring-1 ring-brand/10">
             <Info className="mt-0.5 size-4 shrink-0 text-brand" weight="fill" />
-
             <p>
               Preview only — verify payment details before sending money, then
               upload your transfer screenshot below.
@@ -308,6 +289,7 @@ export function ProPaymentForm() {
         </CardContent>
       </Card>
 
+      {/* Confirmation Form Card */}
       <Card className="rounded-2xl bg-white/95 py-0 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)] ring-slate-200/80">
         <CardHeader className="gap-1 pt-6">
           <CardTitle className="font-heading text-xl font-semibold text-slate-950">
@@ -315,7 +297,8 @@ export function ProPaymentForm() {
           </CardTitle>
 
           <CardDescription className="text-sm text-slate-600">
-            We’ll use this information to verify your payment and activate Pro.
+            We’ll use this information to verify your payment and activate{" "}
+            {plan.name}.
           </CardDescription>
         </CardHeader>
 
@@ -335,6 +318,7 @@ export function ProPaymentForm() {
                 <Input
                   id="fullName"
                   placeholder="Your full name"
+                  aria-invalid={Boolean(errors.fullName)}
                   className="h-11 rounded-xl border-slate-200 bg-white px-3.5 text-sm md:text-sm"
                   {...register("fullName", {
                     required: "Full name is required",
@@ -362,6 +346,7 @@ export function ProPaymentForm() {
                   id="email"
                   type="email"
                   placeholder="you@company.com"
+                  aria-invalid={Boolean(errors.email)}
                   className="h-11 rounded-xl border-slate-200 bg-white px-3.5 text-sm md:text-sm"
                   {...register("email", {
                     required: "Email is required",
@@ -436,7 +421,7 @@ export function ProPaymentForm() {
               />
             </div>
 
-            {/* Screenshot */}
+            {/* Screenshot Upload */}
             <div className="space-y-2">
               <Label htmlFor="screenshot" className="text-sm text-slate-700">
                 Payment screenshot
@@ -472,9 +457,7 @@ export function ProPaymentForm() {
                   }}
                   onChange={(event) => {
                     screenshotField.onChange(event);
-
                     const file = event.target.files?.[0];
-
                     setScreenshotName(file ? file.name : null);
                   }}
                 />
@@ -498,13 +481,14 @@ export function ProPaymentForm() {
               ) : null}
             </div>
 
+            {/* Action Bar */}
             <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-slate-600">
                 Paying with{" "}
                 <span className="font-semibold text-slate-900">
-                  {selected.name}
+                  {selectedMethod.name}
                 </span>{" "}
-                · ${proPlanDetails.monthlyPrice}/month
+                · ${plan.monthlyPrice}/month
               </p>
 
               <Button
@@ -528,33 +512,29 @@ export function ProPaymentForm() {
   );
 }
 
-export function PlanSummaryCard() {
+export function PlanSummaryCard({ plan }: PlanSummaryCardProps) {
   return (
     <Card className="h-fit rounded-2xl bg-white/95 py-0 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)] ring-slate-200/80">
       <CardHeader className="gap-2 pt-6">
         <CardTitle className="font-heading text-2xl font-semibold text-slate-950">
-          {proPlanDetails.name}
+          {plan.name}
         </CardTitle>
 
         <CardDescription className="text-sm leading-relaxed text-slate-600">
-          {proPlanDetails.description}
+          {plan.description}
         </CardDescription>
 
         <p className="pt-2">
           <span className="font-heading text-4xl font-semibold text-slate-950">
-            ${proPlanDetails.monthlyPrice}
+            ${plan.monthlyPrice}
           </span>
-
-          <span className="text-sm text-slate-500">
-            {" "}
-            /month
-          </span>
+          <span className="text-sm text-slate-500"> /month</span>
         </p>
       </CardHeader>
 
       <CardContent className="pb-7">
         <ul className="space-y-2.5">
-          {proPlanDetails.features.map((feature) => (
+          {plan.features.map((feature) => (
             <li
               key={feature}
               className="flex items-start gap-2.5 text-sm text-slate-700"
@@ -563,7 +543,6 @@ export function PlanSummaryCard() {
                 className="mt-0.5 size-4 shrink-0 text-brand"
                 weight="bold"
               />
-
               {feature}
             </li>
           ))}
@@ -578,5 +557,5 @@ export function PlanSummaryCard() {
         </Link>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -170,7 +170,7 @@ export function PaymentDialog({
             </AlertDialogTitle>
             <AlertDialogDescription className="max-w-sm text-sm leading-relaxed text-slate-600">
               Thanks, {payload.fullName}. We’re reviewing your{" "}
-              {proPlanDetails.name} payment and will activate your workspace
+              {payload.plan} payment and will activate your workspace
               shortly.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -181,7 +181,7 @@ export function PaymentDialog({
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-slate-500">Plan</dt>
                   <dd className="font-medium text-slate-900">
-                    {proPlanDetails.name} · ${payload.amount}/mo
+                    {payload.plan} · ${payload.amount}/mo
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-4">

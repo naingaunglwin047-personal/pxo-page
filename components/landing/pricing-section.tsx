@@ -108,7 +108,7 @@ export function PricingSection() {
                 </CardContent>
                 <CardFooter className="border-0 pb-7">
                   <Link
-                    href={plan.id === "pro" ? "/payment/pro" : "/signup"}
+                    href={plan.id === "pro" ? "/payment/pro" : "/payment/pro-max"}
                     className="w-full"
                   >
                     <Button

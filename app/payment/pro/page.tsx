@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { ProPaymentPage } from "@/components/payment/pro-payment-page"
+import { proPlanDetails } from "@/lib/payment";
 
 export const metadata: Metadata = {
   title: "Pro payment",
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 }
 
 export default function ProPaymentRoute() {
-  return <ProPaymentPage />
+  return <ProPaymentPage plan={proPlanDetails} />;
 }
