@@ -48,3 +48,21 @@ export const proPlanDetails = {
     "Email support",
   ],
 } as const
+
+export const proMaxPlanDetails = {
+  name: "Pro Max",
+  description:
+    "For larger teams and organizations who need advanced features and higher limits.",
+  monthlyPrice: 49,
+  badge: "Monthly plan",
+  features: [
+    "Up to 100 meetings / month",
+    "Live Burmese transcription",
+    "Speaker identification (up to 20)",
+    "AI meeting summaries",
+    "Searchable 12-month history",
+    "Export to PDF & Docs",
+    "Google Meet, Zoom & Microsoft Teams support",
+    "Priority email support",
+  ],
+} as const
